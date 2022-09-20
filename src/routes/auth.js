@@ -1,41 +1,43 @@
 const { Router } = require("express");
 const User = require("../database/schemas/User");
-const { hashPassword } = require("../utils/helpers");
+const { hashPassword, comparePassword } = require("../utils/helpers");
 
 const router = Router();
 
 //endpoint for login
-router.post("/login", (req, res) => {
-  const { username, password } = req.body;
-  // check if username and password are truthy
-  if (username && password) {
-    /* if "user" property already exist in the "session" obj,
-    the user is already autheticated:*/
-    if (req.session.user) {
-      res.send(req.session.user);
-    } else {
-      /*if this "user" session property does not exist,
-      the user is not autheticated.
-      Then add the "user" property to the "session" obj, 
-      and pass the "username" property to the "user" obj:*/
-      req.session.user = {
-        username,
-      };
-      res.send(req.session);
-    }
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  //if email or password are null, undefined or empty, send 400 status code - Bad Request
+  if (!email || !password) return res.send(400);
 
-    /* if username and password are not truthy,
-    send response with code status 401 - Unauthorized*/
-  } else res.send(401);
+  //search user in DB by email
+  const userDB = await User.findOne({ email });
+
+  //if the user does not found, send  401 - Unauthorized
+  if (!userDB) return res.send(401);
+
+  //
+  const isValid = comparePassword(password, userDB.password);
+
+  //if the password is correct
+  if (isValid) {
+    //to obtain cookies, we attach the obj "user" to the obj "session"
+    req.session.user = userDB;
+    console.log("Authenticated Successfully!");
+    return res.send(200);
+  } else {
+    console.log("Failed to Authenticate");
+    return res.send(401);
+  }
 });
 
 //endpoint for register
 router.post("/register", async (req, res) => {
   //get username, password, email from body request
-  const { username, password, email } = req.body;
+  const { email } = req.body;
 
-  //check if username or email alreday exist in DB
-  const userDB = await User.findOne({ $or: [{ username }, { email }] });
+  //check if email alreday exist in DB
+  const userDB = await User.findOne({ email });
 
   //if this data already exist in DB send 400 status code - Bad Request with a specific message
   if (userDB) {

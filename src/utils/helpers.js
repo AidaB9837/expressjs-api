@@ -6,4 +6,11 @@ function hashPassword(password) {
   return bcrypt.hashSync(password, salt);
 }
 
-module.exports = { hashPassword };
+/*function that return any value bcrypt like a boolean:
+  true if the password is hashed
+  else, return false */
+function comparePassword(raw, hash) {
+  return bcrypt.compareSync(raw, hash);
+}
+
+module.exports = { hashPassword, comparePassword };

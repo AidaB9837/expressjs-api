@@ -2,15 +2,12 @@ const mongoose = require("mongoose");
 
 //create new Schema for our DB in MongoDB
 const UserSchema = new mongoose.Schema({
-  username: {
+  email: {
     type: mongoose.SchemaTypes.String,
     required: true,
+    unique: true,
   },
   password: {
-    type: mongoose.SchemaTypes.String,
-    required: true,
-  },
-  email: {
     type: mongoose.SchemaTypes.String,
     required: true,
   },
