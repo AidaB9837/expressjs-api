@@ -1,9 +1,11 @@
 const { Router } = require("express");
+const passport = require("passport");
 const User = require("../database/schemas/User");
 const { hashPassword, comparePassword } = require("../utils/helpers");
 
 const router = Router();
 
+/*
 //endpoint for login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -29,6 +31,12 @@ router.post("/login", async (req, res) => {
     console.log("Failed to Authenticate");
     return res.send(401);
   }
+});*/
+
+//endpoint for login
+router.post("/login", passport.authenticate("local"), (req, res) => {
+  console.log("Logged In");
+  res.send(200);
 });
 
 //endpoint for register

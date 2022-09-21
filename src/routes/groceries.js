@@ -19,8 +19,10 @@ const groceryList = [
 
 //CHECK USER
 router.use((req, res, next) => {
-  //if req.session.user is truthy (user logged), next
-  if (req.session.user) next();
+  console.log("Inside Groceries Auth Check Middleware");
+  console.log(req.user);
+  //if req.user is truthy (user logged), next
+  if (req.user) next();
   // if user is not logged, send code status 401 - Unauthorized
   else res.send(401);
 });
