@@ -1,6 +1,9 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const passport = require("passport");
+
+//Routes
 const groceriesRoute = require("./routes/groceries");
 const marketsRoute = require("./routes/markets");
 const authRoute = require("./routes/auth");
@@ -29,6 +32,10 @@ app.use((req, res, next) => {
   console.log(`${req.method}:${req.url}`);
   next();
 });
+
+//after the session has been initialize, we go to initialize passport and his session
+app.use(passport.initialize());
+app.use(passport.session());
 
 //basic routes
 app.use("/api/v1/groceries", groceriesRoute);
