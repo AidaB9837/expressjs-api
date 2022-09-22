@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const passport = require("passport");
 require("./strategies/local");
 
@@ -13,8 +14,6 @@ require("./database");
 
 const app = express();
 const PORT = 3001;
-//set memory store
-const memoryStore = new session.MemoryStore();
 
 //accepted body request types
 app.use(express.json());
@@ -27,20 +26,19 @@ app.use(
     secret: "LIDSHCKUGDKYGCAASJCGYYSDKG",
     resave: false,
     saveUninitialized: false,
-    //add the memory store like a session store's value
-    store: memoryStore,
+    //set connect-mongo to configure our session store with our MongoDB's collection
+    store: MongoStore.create({
+      mongoUrl: "mongodb://localhost:27017/expressjs_tutorial",
+    }) /*now, our data will be saved in our db, 
+        so we could make requests to the server without having to log in again.
+        Then, if the server crashes for some reason,
+        all data in the DB session will be backed up*/,
   })
 );
 
 //to show in console what happened
 app.use((req, res, next) => {
   console.log(`${req.method}:${req.url}`);
-  next();
-});
-
-//to show in console the memory store
-app.use((req, res, next) => {
-  console.log(memoryStore);
   next();
 });
 
