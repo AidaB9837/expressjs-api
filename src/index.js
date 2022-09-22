@@ -13,6 +13,8 @@ require("./database");
 
 const app = express();
 const PORT = 3001;
+//set memory store
+const memoryStore = new session.MemoryStore();
 
 //accepted body request types
 app.use(express.json());
@@ -25,12 +27,20 @@ app.use(
     secret: "LIDSHCKUGDKYGCAASJCGYYSDKG",
     resave: false,
     saveUninitialized: false,
+    //add the memory store like a session store's value
+    store: memoryStore,
   })
 );
 
 //to show in console what happened
 app.use((req, res, next) => {
   console.log(`${req.method}:${req.url}`);
+  next();
+});
+
+//to show in console the memory store
+app.use((req, res, next) => {
+  console.log(memoryStore);
   next();
 });
 
