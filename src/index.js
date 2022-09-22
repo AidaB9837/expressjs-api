@@ -3,7 +3,9 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
-require("./strategies/local");
+// require("./strategies/local");
+require("./strategies/discord");
+require("dotenv/config");
 
 //Routes
 const groceriesRoute = require("./routes/groceries");
@@ -13,7 +15,7 @@ const authRoute = require("./routes/auth");
 require("./database");
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT;
 
 //accepted body request types
 app.use(express.json());
@@ -23,12 +25,12 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 app.use(
   session({
-    secret: "LIDSHCKUGDKYGCAASJCGYYSDKG",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     //set connect-mongo to configure our session store with our MongoDB's collection
     store: MongoStore.create({
-      mongoUrl: "mongodb://localhost:27017/expressjs_tutorial",
+      mongoUrl: process.env.MONGODB_URL,
     }) /*now, our data will be saved in our db, 
         so we could make requests to the server without having to log in again.
         Then, if the server crashes for some reason,

@@ -62,4 +62,17 @@ the password from body*/
   }
 });
 
+//endpoind to go to the provider Discord and make the authentication
+router.get("/discord", passport.authenticate("discord"), (req, res) => {
+  res.send(200);
+});
+
+router.get(
+  "/discord/redirect",
+  passport.authenticate("discord"),
+  (req, res) => {
+    res.send(200);
+  }
+);
+
 module.exports = router;
