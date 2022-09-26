@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const passport = require("passport");
+const { authRegisterController } = require("../controllers/auth");
 const User = require("../database/schemas/User");
 const { hashPassword, comparePassword } = require("../utils/helpers");
 
@@ -40,27 +41,7 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
 });
 
 //endpoint for register
-router.post("/register", async (req, res) => {
-  //get username, password, email from body request
-  const { email } = req.body;
-
-  //check if email alreday exist in DB
-  const userDB = await User.findOne({ email });
-
-  //if this data already exist in DB send 400 status code - Bad Request with a specific message
-  if (userDB) {
-    res.status(400).send({ msg: "User already exists!" });
-  }
-  //else, register this data in new User record & send 201 status code - Created
-  else {
-    /*set a new variable with function to hashing pw that have like a params 
-the password from body*/
-    const password = hashPassword(req.body.password);
-    console.log(password);
-    const newUser = await User.create({ username, password, email });
-    res.send(201);
-  }
-});
+router.post("/register", authRegisterController);
 
 //endpoind to go to the provider Discord and make the authentication
 router.get("/discord", passport.authenticate("discord"), (req, res) => {
