@@ -24,35 +24,40 @@ const response = {
   send: jest.fn((x) => x),
 };
 
-//first test: if block - user already exist in DB
-it("dovrebbe inviare uno status code 400 quando l'utente esiste già", async () => {
-  //mock any methods from the User module
+//TEST Authentication Register Controller
+describe("Authentication Register Controller", () => {
+  //START - first test: if block - user already exist in DB
+  it("dovrebbe inviare uno status code 400 quando l'utente esiste già", async () => {
+    //mock any methods from the User module
 
-  //created a fake user for the test & using findOne method
-  User.findOne.mockImplementationOnce(() => ({
-    id: 1,
-    email: "email",
-    password: "password",
-  }));
-  await authRegisterController(request, response);
-  expect(response.status).toHaveBeenCalledWith(400);
-  expect(response.send).toHaveBeenCalledTimes(1);
-});
+    //created a fake user for the test & using findOne method
+    User.findOne.mockImplementationOnce(() => ({
+      id: 1,
+      email: "email",
+      password: "password",
+    }));
+    await authRegisterController(request, response);
+    expect(response.status).toHaveBeenCalledWith(400);
+    expect(response.send).toHaveBeenCalledTimes(1);
+  });
+  //END - Test "if" block
 
-//second test: else block - user does not exist in DB, then create a new user
-it("dovrebbe inviare uno status code 201 quando viene creato un nuovo utente", async () => {
-  //created a fake unknow user for the test & using findOne & create methods
-  User.findOne.mockResolvedValueOnce(undefined);
-  User.create.mockResolvedValueOnce({
-    id: 1,
-    email: "email",
-    password: "password",
+  //START - second test: else block - user does not exist in DB, then create a new user
+  it("dovrebbe inviare uno status code 201 quando viene creato un nuovo utente", async () => {
+    //created a fake unknow user for the test & using findOne & create methods
+    User.findOne.mockResolvedValueOnce(undefined);
+    User.create.mockResolvedValueOnce({
+      id: 1,
+      email: "email",
+      password: "password",
+    });
+    await authRegisterController(request, response);
+    expect(hashPassword).toHaveBeenCalledWith("fake_password");
+    expect(User.create).toHaveBeenCalledWith({
+      email: "fake_email",
+      password: "hash password",
+    });
+    expect(response.send).toHaveBeenCalledWith(201);
   });
-  await authRegisterController(request, response);
-  expect(hashPassword).toHaveBeenCalledWith("fake_password");
-  expect(User.create).toHaveBeenCalledWith({
-    email: "fake_email",
-    password: "hash password",
-  });
-  expect(response.send).toHaveBeenCalledWith(201);
+  //END - Test "else" block
 });

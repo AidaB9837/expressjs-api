@@ -28,6 +28,30 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+async function discordVerifyFunction(accessToken, refreshToken, profile, done) {
+  //this is the discord profile ID that is retrieved via OAuth
+  const { id: discordId } = profile;
+
+  //implement logic similar to local:
+  try {
+    //search user in DB by profile ID
+    const discordUser = await DiscordUser.findOne({ discordId });
+
+    //if user already exist in DB
+    if (discordUser) {
+      return done(null, discordUser);
+    }
+    //if user does not exist in DB, create new user
+    else {
+      const newUser = await DiscordUser.create({ discordId });
+      return done(null, newUser);
+    }
+  } catch (error) {
+    console.log(error);
+    return done(error, null);
+  }
+}
+
 passport.use(
   new Strategy(
     //option's strategy
@@ -37,35 +61,8 @@ passport.use(
       callbackURL: process.env.CALLBACK_URL,
       scope: ["identify"],
     },
-
-    async (accessToken, refreshToken, profile, done) => {
-      console.log({ accessToken: accessToken, refreshToken: refreshToken });
-      console.log({ infoUser: profile });
-
-      //implement logic similar to local:
-      try {
-        //search user in DB by profile ID
-        const discordUser = await DiscordUser.findOne({
-          discordId: profile.id,
-        });
-
-        //if user already exist in DB
-        if (discordUser) {
-          console.log(`Found User: ${discordUser}`);
-          return done(null, discordUser);
-        }
-        //if user does not exist in DB, create new user
-        else {
-          const newUser = await DiscordUser.create({
-            discordId: profile.id,
-          });
-          console.log(`Create User: ${newUser}`);
-          return done(null, newUser);
-        }
-      } catch (error) {
-        console.log(error);
-        return done(error, null);
-      }
-    }
+    discordVerifyFunction
   )
 );
+
+module.exports = { discordVerifyFunction };
